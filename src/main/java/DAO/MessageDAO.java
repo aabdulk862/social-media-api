@@ -37,13 +37,9 @@ public class MessageDAO {
             PreparedStatement pstmt = connection.prepareStatement(sql);
             ResultSet rs = pstmt.executeQuery();
 
-            while (rs.next()) {
-                int messageId = rs.getInt("message_id");
-                int postedBy = rs.getInt("posted_by");
-                String messageText = rs.getString("message_text");
-                long timePostedEpoch = rs.getLong("time_posted_epoch");
-                
-                Message message = new Message(messageId, postedBy, messageText, timePostedEpoch);
+            while (rs.next()) {    
+                Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"), 
+                        rs.getString("message_text"), rs.getLong("time_posted_epoch"));
                 messages.add(message);
             }   
         }catch(SQLException e){
@@ -52,6 +48,24 @@ public class MessageDAO {
         return messages;
     }
 
+    public Message getMessageById(int id){
+        Connection connection = ConnectionUtil.getConnection();
+        try {
+            String sql = "SELECT * FROM message WHERE message_id = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"), 
+                        rs.getString("message_text"), rs.getLong("time_posted_epoch"));
+                return message;
+            }   
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
 
     public boolean doesUserExist(int accountId){
         Connection connection = ConnectionUtil.getConnection();
