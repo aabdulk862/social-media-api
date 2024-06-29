@@ -23,5 +23,9 @@ public class AccountService {
         }
         return null; 
     }
+
+    public Account login(Account account){
+        return accountDAO.loginToAccount(account.getUsername(), account.getPassword());
+    }
     
 }
