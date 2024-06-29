@@ -1,5 +1,8 @@
 package Service;
 import Model.Message;
+
+import java.util.List;
+
 import DAO.MessageDAO;
 
 public class MessageService {
@@ -21,5 +24,9 @@ public class MessageService {
             return messageDAO.createMessage(message);
         }
         return null; 
+    }
+
+    public List<Message> getAllMessages(){
+        return messageDAO.getAllMessages();
     }
 }
