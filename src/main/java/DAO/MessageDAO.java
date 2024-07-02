@@ -67,6 +67,27 @@ public class MessageDAO {
         return null;
     }
 
+    public Message deleteMessageById(int id){
+        Connection connection = ConnectionUtil.getConnection();
+        Message message = getMessageById(id); // Retrieve the message before deleting it
+        if (message == null) {
+            return null; // Return null if the message doesn't exist
+        }
+        try {
+            String sql = "DELETE FROM message WHERE message_id = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            int rowsAffected = pstmt.executeUpdate();
+    
+            if (rowsAffected > 0) {
+                return message; // Return the deleted message
+            }   
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
     public boolean doesUserExist(int accountId){
         Connection connection = ConnectionUtil.getConnection();
         try {
