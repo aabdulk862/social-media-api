@@ -5,6 +5,9 @@ import Model.Message;
 import Service.AccountService;
 import Service.MessageService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.javalin.Javalin;
@@ -37,6 +40,8 @@ public class SocialMediaController {
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getAllMessagesByIdHandler);
         app.delete("/messages/{message_id}", this::deleteAllMessagesByIdHandler);
+        app.patch("/messages/{message_id}", this::updateAllMessagesByIdHandler);
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesByAccountIdHandler);
         return app;
     }
 
@@ -105,6 +110,26 @@ public class SocialMediaController {
         }
     }
 
+    private void updateAllMessagesByIdHandler(Context context) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        int messageId = Integer.valueOf(context.pathParam("message_id"));
+        String text = mapper.readTree(context.body()).get("message_text").asText();
+        Message message = messageService.updateMessageById(text,messageId);
+        if (message == null) {
+            context.status(400); // Empty response body
+        } else {
+            context.status(200).json(message);
+        }
+    }
 
+    private void getAllMessagesByAccountIdHandler(Context context) throws JsonProcessingException {
+        int id = Integer.valueOf(context.pathParam("account_id"));
+        List<Message> messages = messageService.getAllMessagesById(id);
+        if (messages.isEmpty()) {
+            context.status(200).json(new ArrayList<>()); // Return an empty array if no messages are found
+        } else {
+            context.json(messages);
+        }
+    }
 
 }

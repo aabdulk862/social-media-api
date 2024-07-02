@@ -88,6 +88,49 @@ public class MessageDAO {
         return null;
     }
 
+    public Message updateMessageById(String text, int id){
+        Connection connection = ConnectionUtil.getConnection();
+        Message message = getMessageById(id); // Retrieve the message before updating it
+        if (message == null) {
+            return null; // Return null if the message doesn't exist
+        }
+        try {
+            String sql = "UPDATE message SET message_text = ? WHERE message_id = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setString(1, text);
+            pstmt.setInt(2, id);
+            int rowsAffected = pstmt.executeUpdate();
+    
+            if (rowsAffected > 0) {
+                message.setMessage_text(text);
+                return message; // Return the updated message
+            }   
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public List<Message> getAllMessagesById(int id){
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<>();
+        try {
+            String sql = "SELECT message_id, posted_by, message_text, time_posted_epoch FROM message WHERE posted_by = ?";
+            PreparedStatement pstmt = connection.prepareStatement(sql);
+            pstmt.setInt(1, id);
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {    
+                Message message = new Message(rs.getInt("message_id"), rs.getInt("posted_by"), 
+                        rs.getString("message_text"), rs.getLong("time_posted_epoch"));
+                messages.add(message);
+            }   
+        }catch(SQLException e){
+            System.out.println(e.getMessage());
+        }
+        return messages;
+    }
+
     public boolean doesUserExist(int accountId){
         Connection connection = ConnectionUtil.getConnection();
         try {
